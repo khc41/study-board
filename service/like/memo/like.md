@@ -41,3 +41,7 @@ lockType = optimistic-lock, time = 2816ms
 optimistic-lock end
 count = 335
 ```
+
+### 참고
+- 댓글 수, 게시글 수 등 다른 카운팅에도 동일 방식 적용 가능
+  - 페이징 성능 개선 목적의 count 쿼리 대체로도 활용 가능
