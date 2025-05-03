@@ -23,3 +23,21 @@
 - 낙관적 락: version 컬럼 사용
 - 비동기 순차 처리: 오히려 더 큰 비용이 듦 (좋아요 쓰기 트래픽이 많지 않다고 가정)
 > 비관적 락으로 해결 가능하지만, 학습 목적 상 비관적 락, 낙관적 락 모두 사용해볼 예정
+> 낙관적 락은 테스트 결과 사용 불가 (충돌로 인해 데이터 보장 X)
+
+```text
+pessimistic-lock-1 start
+lockType = pessimistic-lock-1, time = 1936ms
+pessimistic-lock-1 end
+count = 3001
+
+pessimistic-lock-2 start
+lockType = pessimistic-lock-2, time = 2604ms
+pessimistic-lock-2 end
+count = 3001
+
+optimistic-lock start
+lockType = optimistic-lock, time = 2816ms
+optimistic-lock end
+count = 335
+```
