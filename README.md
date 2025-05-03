@@ -6,4 +6,4 @@
 - [무한 depth 댓글 설계](service/comment/memo/comment-infinite-depth.md)<br>
   → Path Enumeration 방식으로 무한 계층 댓글을 효율적으로 구현한 설계
 - [좋아요 수 테이블 설계](service/like/memo/like.md)<br>
-  → MSA 환경에서 분산 트랜잭션을 피하기 위한 좋아요 수 테이블 분리 및 샤딩 전략
+  → MSA 환경에서 분산 트랜잭션을 피하기 위한 좋아요 수 테이블 분리, 샤딩 전략 및 동시성 이슈 고려 
