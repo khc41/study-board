@@ -1,4 +1,4 @@
-package kuke.board.common.snowflake;
+package study.board.common.snowflake;
 
 import java.util.random.RandomGenerator;
 
