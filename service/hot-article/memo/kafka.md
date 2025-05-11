@@ -1,0 +1,11 @@
+## Kafka Cluster
+- kafka broker는 **디스크 기반**으로 데이터를 처리한다.
+- Producer가 데이터를 publish 하면, Consumer가 데이터를 subscribe 하는 pub/sub 구조이다.
+- Producer, Consumer 모두 **topic 단위로 데이터를 처리**한다.
+- 각 topic은 partition 단위로 물리적으로 나뉘고, 이 partition들을 여러 broker에 분산해서 처리한다.
+- 순서 보장이 필요한 이벤트들은 **동일한 partition으로 처리하게 해 순서를 보장**한다.
+- 장애 발생을 대비해 데이터 복제본을 관리할 수 있다. leader에 데이터를 쓰면 follower로 데이터가 복제된다.
+- ack와 min.insync.replicas 설정을 통해 데이터 복제에 대해 컨트롤 가능하다. 
+  - 예: replication factor=3, acks=all, min.insync.replicas=2 이런 식으로 구성한다.
+- consumer는 offset 기반으로 데이터를 읽는데, 같은 Consumer Group에선 offset을 공유한다. 즉, **동일한 데이터로 다른 작업을 병렬적으로 하려면 Consumer Group을 분리**해서 처리하면 된다.
+- Kafka Cluster는 여러개의 Broker가 모여 하나의 분산 시스템을 구성한 것으로 고성능, 안정성, 확장성, 고가용성 등을 지원한다.

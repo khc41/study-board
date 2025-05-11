@@ -6,4 +6,6 @@
 - [무한 depth 댓글 설계](service/comment/memo/comment-infinite-depth.md)<br>
   → Path Enumeration 방식으로 무한 계층 댓글을 효율적으로 구현한 설계
 - [좋아요 수 테이블 설계](service/like/memo/like.md)<br>
-  → MSA 환경에서 분산 트랜잭션을 피하기 위한 좋아요 수 테이블 분리, 샤딩 전략 및 동시성 이슈 고려 
+  → MSA 환경에서 분산 트랜잭션을 피하기 위한 좋아요 수 테이블 분리, 샤딩 전략 및 동시성 이슈 고려
+- [Kafka Cluster 개념 정리](service/hot-article/memo/kafka.md)<br>
+  → Kafka의 pub/sub 구조, partition 분산 처리, 복제 설정 및 Consumer Group에 따른 offset 처리 방식 등 대규모 시스템에서 Kafka를 안정적으로 운영하기 위한 핵심 개념 정리
