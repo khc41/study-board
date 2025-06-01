@@ -11,3 +11,5 @@
   → Kafka의 pub/sub 구조, partition 분산 처리, 복제 설정 및 Consumer Group에 따른 offset 처리 방식 등 대규모 시스템에서 Kafka를 안정적으로 운영하기 위한 핵심 개념 정리
 - [인기글 설계](service/hot-article/memo/hot-article.md)<br>
   → Kafka 기반 실시간 이벤트 스트림 + Redis Sorted Set을 활용한 고속 인기글 선정 시스템 설계 (대규모 트래픽 대응 최적화)
+- [Outbox Message Relay 설계](common/outbox-message-relay/memo/outbox.md)<br>
+  → 트랜잭션 메시징을 위한 Outbox 테이블과 Message Relay를 활용한 안정적인 이벤트 발행 및 샤딩된 데이터베이스 Polling 처리 방식
