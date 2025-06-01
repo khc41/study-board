@@ -1,6 +1,5 @@
 package study.board.comment.service;
 
-import study.board.common.snowflake.Snowflake;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +11,11 @@ import study.board.comment.repository.CommentRepositoryV2;
 import study.board.comment.service.request.CommentCreateRequestV2;
 import study.board.comment.service.response.CommentPageResponse;
 import study.board.comment.service.response.CommentResponse;
+import study.board.common.event.EventType;
+import study.board.common.event.payload.CommentCreatedEventPayload;
+import study.board.common.event.payload.CommentDeletedEventPayload;
+import study.board.common.outboxmessagerelay.OutboxEventPublisher;
+import study.board.common.snowflake.Snowflake;
 
 import java.util.List;
 
@@ -22,6 +26,7 @@ import static java.util.function.Predicate.not;
 public class CommentServiceV2 {
     private final Snowflake snowflake = new Snowflake();
     private final CommentRepositoryV2 commentRepository;
+    private final OutboxEventPublisher outboxEventPublisher;
     private final ArticleCommentCountRepository articleCommentCountRepository;
 
     @Transactional
@@ -41,11 +46,26 @@ public class CommentServiceV2 {
                 )
         );
         int result = articleCommentCountRepository.increase(request.getArticleId());
-        if(result == 0){
+        if (result == 0) {
             articleCommentCountRepository.save(
                     ArticleCommentCount.init(request.getArticleId(), 1L)
             );
         }
+
+        outboxEventPublisher.publish(
+                EventType.COMMENT_CREATED,
+                CommentCreatedEventPayload.builder()
+                        .commentId(comment.getCommentId())
+                        .content(comment.getContent())
+                        .articleId(comment.getArticleId())
+                        .writerId(comment.getWriterId())
+                        .deleted(comment.getDeleted())
+                        .createdAt(comment.getCreatedAt())
+                        .articleCommentCount(count(comment.getArticleId()))
+                        .build(),
+                comment.getArticleId()
+        );
+
         return CommentResponse.from(comment);
     }
 
@@ -75,6 +95,20 @@ public class CommentServiceV2 {
                     } else {
                         delete(comment);
                     }
+
+                    outboxEventPublisher.publish(
+                            EventType.COMMENT_DELETED,
+                            CommentDeletedEventPayload.builder()
+                                    .commentId(comment.getCommentId())
+                                    .content(comment.getContent())
+                                    .articleId(comment.getArticleId())
+                                    .writerId(comment.getWriterId())
+                                    .deleted(comment.getDeleted())
+                                    .createdAt(comment.getCreatedAt())
+                                    .articleCommentCount(count(comment.getArticleId()))
+                                    .build(),
+                            comment.getArticleId()
+                    );
                 });
     }
 
@@ -97,7 +131,7 @@ public class CommentServiceV2 {
         }
     }
 
-    public CommentPageResponse readAll(Long articleId, Long page, Long pageSize){
+    public CommentPageResponse readAll(Long articleId, Long page, Long pageSize) {
         return CommentPageResponse.of(
                 commentRepository.findAll(articleId, (page - 1) * pageSize, pageSize).stream()
                         .map(CommentResponse::from)
@@ -106,7 +140,7 @@ public class CommentServiceV2 {
         );
     }
 
-    public List<CommentResponse> readAllInfiniteScroll(Long articleId, String lastPath, Long pageSize){
+    public List<CommentResponse> readAllInfiniteScroll(Long articleId, String lastPath, Long pageSize) {
         List<CommentV2> comments = lastPath == null ?
                 commentRepository.findAllInfiniteScroll(articleId, pageSize) :
                 commentRepository.findAllInfiniteScroll(articleId, lastPath, pageSize);
@@ -116,7 +150,7 @@ public class CommentServiceV2 {
                 .toList();
     }
 
-    public Long count(Long articleId){
+    public Long count(Long articleId) {
         return articleCommentCountRepository.findById(articleId)
                 .map(ArticleCommentCount::getCommentCount)
                 .orElse(0L);
