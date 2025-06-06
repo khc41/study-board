@@ -13,3 +13,5 @@
   → Kafka 기반 실시간 이벤트 스트림 + Redis Sorted Set을 활용한 고속 인기글 선정 시스템 설계 (대규모 트래픽 대응 최적화)
 - [Outbox Message Relay 설계](common/outbox-message-relay/memo/outbox.md)<br>
   → 트랜잭션 메시징을 위한 Outbox 테이블과 Message Relay를 활용한 안정적인 이벤트 발행 및 샤딩된 데이터베이스 Polling 처리 방식
+- [CQRS 적용](service/article-read/memo/cqrs.md)
+  → 조회 성능을 높이되 마이크로서비스 간 결합도를 낮추고 장애 전파를 방지하며 자원을 효율적으로 사용하는 설계
