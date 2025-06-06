@@ -62,7 +62,7 @@ public class ArticleQueryModel {
         this.articleLikeCount = payload.getArticleLikeCount();
     }
 
-    public void updatedBy(ArticleUpdatedEventPayload payload){
+    public void updateBy(ArticleUpdatedEventPayload payload){
         this.articleId = payload.getArticleId();
         this.title = payload.getTitle();
         this.content = payload.getContent();
