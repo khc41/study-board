@@ -12,7 +12,7 @@ import org.springframework.web.client.RestClient;
 @RequiredArgsConstructor
 public class CommentClient {
     private RestClient restClient;
-    @Value("${endpoints.study-board-comment-service.url")
+    @Value("${endpoints.study-board-comment-service.url}")
     private String commentServiceUrl;
 
     @PostConstruct
