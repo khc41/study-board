@@ -7,15 +7,20 @@ import study.board.articleread.client.ArticleClient;
 import study.board.articleread.client.CommentClient;
 import study.board.articleread.client.LikeClient;
 import study.board.articleread.client.ViewClient;
+import study.board.articleread.repository.ArticleIdListRepository;
 import study.board.articleread.repository.ArticleQueryModel;
 import study.board.articleread.repository.ArticleQueryModelRepository;
+import study.board.articleread.repository.BoardArticleCountRepository;
 import study.board.articleread.service.event.handler.EventHandler;
+import study.board.articleread.service.response.ArticleReadPageResponse;
 import study.board.articleread.service.response.ArticleReadResponse;
 import study.board.common.event.Event;
 import study.board.common.event.EventPayload;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -27,6 +32,8 @@ public class ArticleReadService {
     private final LikeClient likeClient;
     private final ViewClient viewClient;
     private final ArticleQueryModelRepository articleQueryModelRepository;
+    private final ArticleIdListRepository articleIdListRepository;
+    private final BoardArticleCountRepository boardArticleCountRepository;
     private final List<EventHandler> eventHandlers;
 
     public void handleEvent(Event<EventPayload> event) {
@@ -59,4 +66,69 @@ public class ArticleReadService {
         log.info("[ArticleReadService.fetch] fetch data. articleId={}, isPresent={}", articleId, articleQueryModelOptional.isPresent());
         return articleQueryModelOptional;
     }
+
+    public ArticleReadPageResponse readAll(Long boardId, Long page, Long pageSize) {
+        return ArticleReadPageResponse.of(
+                readAll(
+                        readAllArticleIds(boardId, page, pageSize)
+                ),
+                count(boardId)
+        );
+    }
+
+    private List<ArticleReadResponse> readAll(List<Long> articleIds) {
+        Map<Long, ArticleQueryModel> articleQueryModelMap = articleQueryModelRepository.readAll(articleIds);
+        return articleIds.stream()
+                .map(articleId -> articleQueryModelMap.containsKey(articleId) ?
+                        articleQueryModelMap.get(articleId) :
+                        fetch(articleId).orElse(null)
+                ).filter(Objects::nonNull)
+                .map(articleQueryModel ->
+                        ArticleReadResponse.from(
+                                articleQueryModel,
+                                viewClient.count(articleQueryModel.getArticleId())
+                        ))
+                .toList();
+    }
+
+    private List<Long> readAllArticleIds(Long boardId, Long page, Long pageSize) {
+        List<Long> articleIds = articleIdListRepository.readAll(boardId, (page - 1) * pageSize, pageSize);
+        if (pageSize == articleIds.size()) {
+            log.info("[ArticleReadService.readAllArticleIds] return redis data");
+            return articleIds;
+        }
+        log.info("[ArticleReadService.readAllArticleIds] return origin data");
+        return articleClient.readAll(boardId, page, pageSize).getArticles().stream()
+                .map(ArticleClient.ArticleResponse::getArticleId)
+                .toList();
+    }
+
+    private long count(Long boardId) {
+        Long result = boardArticleCountRepository.read(boardId);
+        if (result != null) {
+            return result;
+        }
+        long count = articleClient.count(boardId);
+        boardArticleCountRepository.createOrUpdate(boardId, count);
+        return count;
+    }
+
+    public List<ArticleReadResponse> readAllInfiniteScroll(Long boardId, Long lastArticleId, Long pageSize) {
+        return readAll(
+                readAllInfiniteScrollArticleIds(boardId, lastArticleId, pageSize)
+        );
+    }
+
+    private List<Long> readAllInfiniteScrollArticleIds(Long boardId, Long lastArticleId, Long pageSize) {
+        List<Long> articleIds = articleIdListRepository.readAllInfiniteScroll(boardId, lastArticleId, pageSize);
+        if (pageSize == articleIds.size()) {
+            log.info("[ArticleReadService.readAllInfiniteScrollArticleIds] return redis data");
+            return articleIds;
+        }
+        log.info("[ArticleReadService.readAllInfiniteScrollArticleIds] return origin data");
+        return articleClient.readAllInfiniteScroll(boardId, lastArticleId, pageSize).stream()
+                .map(ArticleClient.ArticleResponse::getArticleId)
+                .toList();
+    }
+
 }

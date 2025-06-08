@@ -3,9 +3,13 @@ package study.board.articleread.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import study.board.articleread.service.ArticleReadService;
+import study.board.articleread.service.response.ArticleReadPageResponse;
 import study.board.articleread.service.response.ArticleReadResponse;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -15,5 +19,23 @@ public class ArticleReadController {
     @GetMapping("/v1/articles/{articleId}")
     public ArticleReadResponse read(@PathVariable("articleId") Long articleId) {
         return articleReadService.read(articleId);
+    }
+
+    @GetMapping("/v1/articles")
+    public ArticleReadPageResponse readAll(
+            @RequestParam("boardId") Long boardId,
+            @RequestParam(value = "page") Long page,
+            @RequestParam(value = "pageSize") Long pageSize
+    ) {
+        return articleReadService.readAll(boardId, page, pageSize);
+    }
+
+    @GetMapping("/v1/articles/inifinite-scroll")
+    public List<ArticleReadResponse> readAllInfiniteScroll(
+            @RequestParam("boardId") Long boardId,
+            @RequestParam(value = "lastArticleId", required = false) Long lastArticleId,
+            @RequestParam(value = "pageSize") Long pageSize
+    ) {
+        return articleReadService.readAllInfiniteScroll(boardId, lastArticleId, pageSize);
     }
 }
