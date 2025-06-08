@@ -54,7 +54,7 @@ public class ArticleIdListRepository {
 
     private String toPaddedString(Long articleId) {
         // 1234 -> 0000000000000001234
-        return "%19d".formatted(articleId);
+        return "%019d".formatted(articleId);
     }
 
     private String generateKey(Long boardId) {
