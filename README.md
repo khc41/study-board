@@ -17,3 +17,10 @@
   → 조회 성능을 높이되 마이크로서비스 간 결합도를 낮추고 장애 전파를 방지하며 자원을 효율적으로 사용하는 설계
 - [캐시 최적화 전략](service/article-read/memo/cache-optimization.md)<br>
   → @Cacheable 사용 시 Thundering Herd 현상을 방지하기 위해 분산락과 Logical TTL vs Physical TTL 분리 전략을 적용.
+
+### 참고 사항
+- Long 타입으로 반환하게 되면 javascript에서도 깨질 수 있으므로 client에 반환할 경우는 String 타입으로 변환하면 안전함.
+- 컨슈머는 쓰기 트래픽에 대해서 작업, API는 조회 트래픽에 대해서 작업하므로 분리하는 편이 좋음
+  - 애플리케이션이 20개, 파티션이 5개인 경우, 15개의 컨슈머는 파티션을 처리 안함.
+- 카프카 설정에 대해 공부해보는 것이 좋음
+- 샤드도 직접 만들어보면 좋음
